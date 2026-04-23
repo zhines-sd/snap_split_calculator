@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marvel Snap — Split Re-roll Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--surface:#13132a;--surface2:#1c1c38;--surface3:#25254a;
+  --text:#e8e6f0;--muted:#8a87a8;--border:#2e2e5a;
+  --accent:#7c6fff;--accent-bg:rgba(124,111,255,0.15);--accent-border:#7c6fff;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;padding:16px;max-width:900px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:4px}
+.subtitle{text-align:center;color:var(--muted);font-size:12px;margin-bottom:20px;letter-spacing:1px;text-transform:uppercase}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-group{display:flex;gap:6px;flex-wrap:wrap}
+.opt-btn{padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;transition:all .15s}
+.opt-btn:hover{border-color:#5a5a9a;color:var(--text)}
+.opt-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:#fff;box-shadow:0 0 0 1px var(--accent-border)}
+.btn-action{width:100%;padding:11px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:not-allowed;margin-top:4px;transition:background .15s,color .15s;background:#25254a;color:#8a87a8;border:1px solid #2e2e5a}
+.btn-action.btn-ready{background:#22c55e;color:#fff;border:none;cursor:pointer}
+.btn-action.btn-ready:hover{background:#16a34a}
+.results-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.pool-preview{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pool-chips{display:flex;flex-wrap:wrap;gap:3px}
+.pool-empty{font-size:12px;color:var(--muted);font-style:italic}
+.chip{padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500;cursor:pointer;transition:opacity .15s;user-select:none}
+.chip.ultimate{background:rgba(212,170,0,0.15);border:1px solid rgba(212,170,0,0.5);color:#f0c040}
+.chip.superrare{background:rgba(140,80,220,0.15);border:1px solid rgba(140,80,220,0.5);color:#c084f5}
+.chip.rare{background:rgba(50,120,220,0.15);border:1px solid rgba(50,120,220,0.5);color:#6aaaf5}
+.chip.excluded{opacity:0.28;filter:grayscale(0.7);text-decoration:line-through}
+.chip:hover{opacity:0.8}
+.pool-footnote{font-size:11px;color:var(--muted);margin-top:8px;font-style:italic}
+.hidden{display:none}
+.note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;font-style:italic}
+.prot-notice{padding:8px 12px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);font-size:12px;color:#e8c060;margin-bottom:12px}
+.prot-badge{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(212,160,23,0.2);color:#FFD700;border:1px solid rgba(212,160,23,0.4);margin-left:4px;vertical-align:middle;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px}
+.results-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.results-table th{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;text-align:center;padding:8px 3px 6px;border-bottom:1px solid var(--border)}
+.results-table th.row-header{text-align:left;color:var(--muted);font-size:11px;font-weight:500}
+.results-table td{padding:7px 3px;border-bottom:1px solid var(--border);vertical-align:middle}
+.results-table tr:last-child td{border-bottom:none}
+.results-table td.row-label{font-size:12px;color:var(--muted);text-align:left}
+.results-table td.val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:#fff;text-align:center}
+.results-table tr:hover td{background:var(--surface2)}
+.sub{display:block;font-size:9px;font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none;margin-top:2px;line-height:1.3}
+.toggle-wrap{display:flex;align-items:center;gap:10px}
+.toggle-label{font-size:12px;color:var(--muted);transition:color .2s}
+.toggle-label.on{color:#fff}
+.toggle-track{width:44px;height:24px;border-radius:12px;background:var(--surface3);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s,border-color .2s;flex-shrink:0}
+.toggle-track.on{background:var(--accent-bg);border-color:var(--accent-border)}
+.toggle-thumb{width:18px;height:18px;border-radius:50%;background:var(--muted);position:absolute;top:3px;left:3px;transition:transform .2s,background .2s}
+.toggle-track.on .toggle-thumb{transform:translateX(20px);background:#fff}
+.split-tier-badge{display:inline-block;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:5px;text-transform:uppercase;white-space:nowrap}
+.tier-god{background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.55);color:#FFD700}
+.tier-legendary{background:rgba(255,100,30,0.18);border:1px solid rgba(255,100,30,0.55);color:#ff8040}
+.tier-epic{background:rgba(180,60,255,0.18);border:1px solid rgba(180,60,255,0.5);color:#c060ff}
+.tier-rare{background:rgba(50,160,255,0.18);border:1px solid rgba(50,160,255,0.5);color:#4aacff}
+.tier-uncommon{background:rgba(50,210,130,0.18);border:1px solid rgba(50,210,130,0.5);color:#32d282}
+.tier-common{background:rgba(140,140,140,0.12);border:1px solid rgba(140,140,140,0.3);color:#909090}
+.snap-card-outer{display:flex;justify-content:center;margin-bottom:12px}
+.snap-card{width:180px;border-radius:14px;overflow:hidden;border:2px solid var(--border);background:var(--surface2)}
+.snap-card.tier-god-card{border-color:#b8960a}
+.snap-card.tier-legendary-card{border-color:#cc5010}
+.snap-card.tier-epic-card{border-color:#7a20cc}
+.snap-card.tier-rare-card{border-color:#1466aa}
+.snap-card.tier-uncommon-card{border-color:#1a8a50}
+.snap-card.tier-common-card{border-color:#3a3a3a}
+.snap-card-art{height:110px;display:flex;align-items:center;justify-content:center}
+.snap-card-art-inner{display:flex;gap:16px;align-items:center}
+.snap-card-body{padding:10px 12px 12px}
+.snap-card-tier{margin-bottom:6px}
+.snap-card-divider{height:1px;background:var(--border);margin:8px 0}
+.snap-card-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.snap-card-row:last-child{margin-bottom:0}
+.snap-card-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.snap-card-value{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;text-align:right;max-width:110px;line-height:1.2}
+.snap-card-value.changed{color:#6dffb0}
+.reroll-area{margin-top:8px}
+.rr-confirm-row{margin-bottom:6px}
+.rr-options-row{display:flex;align-items:stretch;gap:0}
+.rr-option-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.rr-divider{display:flex;align-items:center;justify-content:center;padding:0 4px;flex-shrink:0}
+.or-pill{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:3px 6px;line-height:1}
+.rbtn{padding:7px 6px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:11px;letter-spacing:.5px;text-transform:uppercase;text-align:center;transition:all .15s;line-height:1.3;width:100%}
+.rbtn:hover:not(:disabled){border-color:#5a5a9a;color:var(--text)}
+.rbtn:disabled{opacity:0.3;cursor:not-allowed}
+.rbtn.confirm{border-color:#2a6a2a;color:#5ac85a;background:rgba(40,100,40,0.15)}
+.rbtn.confirm:hover:not(:disabled){background:rgba(40,100,40,0.3)}
+.rbtn.free{border-color:#2a4a8a;color:#6aaaf5;background:rgba(40,60,120,0.15)}
+.rbtn.free:hover:not(:disabled){background:rgba(40,60,120,0.3)}
+.rbtn.paid{border-color:#7a5a10;color:#d4a040;background:rgba(100,70,10,0.15)}
+.rbtn.paid:hover:not(:disabled){background:rgba(100,70,10,0.3)}
+.rbtn.used{opacity:0.35;cursor:not-allowed;border-style:dashed}
+.paid-uses{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap}
+.paid-uses.used-up{color:#555;text-decoration:line-through}
+.reroll-status{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
+.history-table{width:100%;border-collapse:collapse}
+.history-table th{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap}
+.history-table td{padding:6px 8px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;white-space:nowrap}
+.history-table tr:last-child td{border-bottom:none}
+.history-table tr:hover td{background:var(--surface2)}
+.history-table td.roll-num{color:var(--muted);font-size:11px}
+.history-table td.item-name{color:#fff;font-weight:500}
+.vc-item{display:flex;align-items:center;gap:3px}
+.vc-item+.vc-item{margin-top:2px}
+.vc-sym{font-size:13px;font-weight:700;line-height:1;flex-shrink:0}
+.vc-up .vc-sym{color:#32d282}
+.vc-down .vc-sym{color:#e05050}
+.vc-eq .vc-sym{color:#d4a040;font-size:11px}
+.vc-lbl{font-size:10px;color:var(--muted)}
+.history-footnote{font-size:11px;color:var(--muted);margin-top:8px;font-style:italic}
+.new-row{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.clear-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+.clear-btn:hover{border-color:#aa3333;color:#ff6666}
+</style>
+</head>
+<body>
+
+<h1>Split Re-roll Calculator</h1>
+<div class="subtitle">Marvel Snap &nbsp;·&nbsp; Infinity Split Odds</div>
+
+<div class="grid2" style="gap:10px;margin-bottom:12px">
+  <div class="card" style="margin-bottom:0">
+    <div class="section-label">Character Mastery</div>
+    <div class="opt-group" id="mastery-group">
+      <button class="opt-btn" data-val="3"  onclick="setMastery(this)">3</button>
+      <button class="opt-btn" data-val="4"  onclick="setMastery(this)">4</button>
+      <button class="opt-btn" data-val="5"  onclick="setMastery(this)">5</button>
+      <button class="opt-btn" data-val="10" onclick="setMastery(this)">10</button>
+      <button class="opt-btn" data-val="15" onclick="setMastery(this)">15</button>
+      <button class="opt-btn" data-val="20" onclick="setMastery(this)">20</button>
+      <button class="opt-btn" data-val="30" onclick="setMastery(this)">30</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:0">
+    <div class="section-label">Split Count</div>
+    <div class="opt-group" id="splits-group">
+      <button class="opt-btn" data-val="1" onclick="setSplits(this)">1 split</button>
+      <button class="opt-btn" data-val="2" onclick="setSplits(this)">2 splits</button>
+      <button class="opt-btn" data-val="3" onclick="setSplits(this)">3 splits</button>
+      <button class="opt-btn" data-val="4" onclick="setSplits(this)">4+ splits</button>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:12px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="section-label" style="margin-bottom:0">Active Pool</div>
+    <div class="toggle-wrap">
+      <span class="toggle-label" id="lbl-equal">Equal weights</span>
+      <div class="toggle-track on" id="weight-toggle" onclick="toggleWeights()"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label on" id="lbl-rarity">Rarity weights</span>
+    </div>
+  </div>
+  <div class="pool-preview">
+    <div>
+      <small style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Active finish pool</small>
+      <div class="pool-chips" id="finish-chips"><span class="pool-empty">Select mastery &amp; split count</span></div>
+    </div>
+    <div>
+      <small style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Active flare pool</small>
+      <div class="pool-chips" id="flare-chips"><span class="pool-empty">Select mastery &amp; split count</span></div>
+    </div>
+  </div>
+  <p class="pool-footnote" id="pool-footnote" style="display:none">* Click any Finish or Flare to remove it from the pool. Click again to add it back.</p>
+</div>
+
+<button class="btn-action" id="calc-btn" onclick="handleCalc()">Calculate Odds</button>
+
+<div id="results" class="card hidden" style="margin-top:12px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="results-title" style="margin-bottom:0">Split Outcome Probabilities</div>
+    <div id="weight-mode-badge" style="font-size:11px;padding:3px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase"></div>
+  </div>
+  <div id="prot-notice" class="prot-notice hidden"></div>
+  <div style="overflow-x:auto">
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th class="row-header"></th>
+          <th>God Split<span class="sub">Gold/Ink + Crackle</span></th>
+          <th>Legendary<span class="sub">Ult + Ult</span></th>
+          <th>Epic<span class="sub">Ult + SR</span></th>
+          <th>Rare<span class="sub">SR + SR or Ult + Rare</span></th>
+          <th>Uncommon<span class="sub">SR + Rare</span></th>
+          <th>Common<span class="sub">Rare + Rare</span></th>
+        </tr>
+      </thead>
+      <tbody id="results-tbody"></tbody>
+    </table>
+  </div>
+  <p class="note">* God Split protection (10%) applies to the initial split only — not to free or paid re-rolls</p>
+</div>
+
+<div id="simulator-section" style="margin-top:4px;display:none">
+  <button class="btn-action btn-ready" id="roll-btn" onclick="rollSplit()">Roll a Split</button>
+
+  <div id="split-result" class="card hidden" style="margin-top:12px">
+    <div class="results-title">Split Result</div>
+    <div class="snap-card-outer">
+      <div class="snap-card" id="snap-card">
+        <div class="snap-card-art" id="snap-card-art" style="background:var(--surface3)">
+          <div class="snap-card-art-inner" id="snap-card-art-inner"></div>
+        </div>
+        <div class="snap-card-body">
+          <div class="snap-card-tier"><span class="split-tier-badge" id="snap-tier-badge"></span></div>
+          <div class="snap-card-divider"></div>
+          <div class="snap-card-row"><span class="snap-card-label">Finish</span><span class="snap-card-value" id="snap-finish-name"></span></div>
+          <div class="snap-card-row"><span class="snap-card-label" style="font-size:9px">rarity</span><span id="snap-finish-rarity"></span></div>
+          <div class="snap-card-divider"></div>
+          <div class="snap-card-row"><span class="snap-card-label">Flare</span><span class="snap-card-value" id="snap-flare-name"></span></div>
+          <div class="snap-card-row"><span class="snap-card-label" style="font-size:9px">rarity</span><span id="snap-flare-rarity"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="reroll-area" id="reroll-area"></div>
+  </div>
+
+  <div id="history-section" class="card hidden" style="margin-top:4px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="results-title" style="margin-bottom:0">Split History</div>
+      <button class="clear-btn" onclick="clearHistory()">Clear History</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="history-table">
+        <thead><tr><th>#</th><th>Finish</th><th>Rarity</th><th>Flare</th><th>Rarity</th><th>Tier</th><th>Value Change</th></tr></thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+    </div>
+    <p class="history-footnote">* Value Change = difference in final Finish or Flare rarity vs initial split</p>
+  </div>
+</div>
+
+<script>
+const WEIGHT_RARITY={Ultimate:4,SuperRare:5,Rare:6};
+const RARITY_RANK={Ultimate:3,SuperRare:2,Rare:1};
+const TIER_META={
+  god:      {label:'God Split', cls:'tier-god',      cardCls:'tier-god-card',      artColor:'#b8960a'},
+  legendary:{label:'Legendary', cls:'tier-legendary', cardCls:'tier-legendary-card', artColor:'#cc5010'},
+  epic:     {label:'Epic',      cls:'tier-epic',      cardCls:'tier-epic-card',      artColor:'#7a20cc'},
+  rare:     {label:'Rare',      cls:'tier-rare',      cardCls:'tier-rare-card',      artColor:'#1466aa'},
+  uncommon: {label:'Uncommon',  cls:'tier-uncommon',  cardCls:'tier-uncommon-card',  artColor:'#1a8a50'},
+  common:   {label:'Common',    cls:'tier-common',    cardCls:'tier-common-card',    artColor:'#3a3a3a'},
+};
+const FINISHES_DEF=[
+  {name:'Foil',rarity:'Rare',mastery:0,splits:0},{name:'Prism',rarity:'Rare',mastery:0,splits:0},
+  {name:'Ink',rarity:'Ultimate',mastery:0,splits:4},{name:'Gold',rarity:'Ultimate',mastery:0,splits:4},
+  {name:'Rays Pink',rarity:'Rare',mastery:10,splits:0},{name:'Rays White',rarity:'Rare',mastery:10,splits:0},
+  {name:'Rays Red',rarity:'Rare',mastery:10,splits:0},{name:'Rays Blue',rarity:'Rare',mastery:10,splits:0},
+  {name:'Rays Green',rarity:'Rare',mastery:10,splits:0},{name:'Rays Orange',rarity:'Rare',mastery:10,splits:0},
+  {name:'Metallic Copper',rarity:'SuperRare',mastery:10,splits:0},{name:'Psychedelic',rarity:'Ultimate',mastery:10,splits:0},
+  {name:'Refraction',rarity:'SuperRare',mastery:10,splits:0},{name:'Circuits',rarity:'Ultimate',mastery:20,splits:0},
+  {name:'Metallic Foil',rarity:'SuperRare',mastery:20,splits:0},{name:'Cosmic',rarity:'Ultimate',mastery:20,splits:0},
+  {name:'Metallic Steel',rarity:'Ultimate',mastery:20,splits:0},{name:'Gilded Prism',rarity:'Ultimate',mastery:20,splits:0},
+  {name:'Metallic Gold',rarity:'SuperRare',mastery:20,splits:0},{name:'Fire',rarity:'SuperRare',mastery:30,splits:0},
+  {name:'Galactic Storm',rarity:'SuperRare',mastery:30,splits:0},{name:'Prism Gold',rarity:'Ultimate',mastery:30,splits:0},
+  {name:'Prism Black',rarity:'Ultimate',mastery:30,splits:0},{name:'Wakandan Glass',rarity:'Ultimate',mastery:30,splits:0},
+];
+const FLARES_DEF=[
+  {name:'Glimmer Red',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer Purple',rarity:'Rare',mastery:0,splits:0},
+  {name:'Glimmer Blue',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer White',rarity:'Rare',mastery:0,splits:0},
+  {name:'Glimmer Green',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer Gold',rarity:'SuperRare',mastery:0,splits:0},
+  {name:'Glimmer Rainbow',rarity:'SuperRare',mastery:0,splits:0},{name:'Glimmer Black',rarity:'SuperRare',mastery:0,splits:0},
+  {name:'Stardust Red',rarity:'Rare',mastery:0,splits:0},{name:'Stardust Purple',rarity:'Rare',mastery:0,splits:0},
+  {name:'Stardust Blue',rarity:'Rare',mastery:0,splits:0},{name:'Stardust White',rarity:'Rare',mastery:0,splits:0},
+  {name:'Stardust Green',rarity:'Rare',mastery:0,splits:0},{name:'Stardust Gold',rarity:'SuperRare',mastery:0,splits:0},
+  {name:'Stardust Rainbow',rarity:'SuperRare',mastery:0,splits:0},{name:'Stardust Black',rarity:'SuperRare',mastery:0,splits:0},
+  {name:'Tone Red',rarity:'Rare',mastery:0,splits:0},{name:'Tone Purple',rarity:'Rare',mastery:0,splits:0},
+  {name:'Tone Blue',rarity:'Rare',mastery:0,splits:0},{name:'Tone White',rarity:'Rare',mastery:0,splits:0},
+  {name:'Tone Green',rarity:'Rare',mastery:0,splits:0},{name:'Tone Gold',rarity:'SuperRare',mastery:0,splits:0},
+  {name:'Tone Rainbow',rarity:'SuperRare',mastery:0,splits:0},{name:'Tone Black',rarity:'SuperRare',mastery:0,splits:0},
+  {name:'Crackle Red',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Purple',rarity:'Ultimate',mastery:0,splits:4},
+  {name:'Crackle Blue',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle White',rarity:'Ultimate',mastery:0,splits:4},
+  {name:'Crackle Green',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Gold',rarity:'Ultimate',mastery:0,splits:4},
+  {name:'Crackle Rainbow',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Black',rarity:'Ultimate',mastery:0,splits:4},
+  {name:'Rainbow Confetti',rarity:'SuperRare',mastery:10,splits:0},{name:'Neon Trails',rarity:'SuperRare',mastery:10,splits:0},
+  {name:'Cosmic',rarity:'SuperRare',mastery:15,splits:0},{name:'Galactic Storm',rarity:'SuperRare',mastery:30,splits:0},
+  {name:'Wakandan Tech',rarity:'Ultimate',mastery:30,splits:0},{name:'Wakandan Gold',rarity:'Ultimate',mastery:30,splits:0},
+  {name:'Embers Green',rarity:'SuperRare',mastery:30,splits:0},{name:'Embers Blue',rarity:'SuperRare',mastery:30,splits:0},
+  {name:'Embers',rarity:'Ultimate',mastery:30,splits:0},{name:'Diamond Gold',rarity:'Ultimate',mastery:30,splits:0},
+];
+let selMastery=null,selSplits=null,useRarityWeights=true,rollCount=0,history=[];
+let rs=null,excludedFins=new Set(),excludedFlas=new Set();
+function isReady(){return selMastery!==null&&selSplits!==null;}
+function updateButtonStates(){const ready=isReady();const calc=document.getElementById('calc-btn');const sim=document.getElementById('simulator-section');if(ready){calc.classList.add('btn-ready');sim.style.display='block';}else{calc.classList.remove('btn-ready');sim.style.display='none';}}
+function handleCalc(){if(isReady())calculate();}
+function initRollState(fin,fla,pool){return{fin,fla,pool,initialFin:fin,initialFla:fla,excludedFins:new Set(),excludedFlas:new Set(),stage:'initial',freeUsed:null,paidFinUsed:false,paidFlaUsed:false,finChanged:false,flaChanged:false,finRerolled:false,flaRerolled:false};}
+function getWeight(item){return useRarityWeights?WEIGHT_RARITY[item.rarity]:1;}
+function getPool(mastery,splits){return{fins:FINISHES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits&&!excludedFins.has(f.name)).map(f=>({...f,weight:getWeight(f)})),fls:FLARES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits&&!excludedFlas.has(f.name)).map(f=>({...f,weight:getWeight(f)}))}}
+function getAllItems(mastery,splits){return{fins:FINISHES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits),fls:FLARES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits)};}
+function weightedPick(pool,excludeNames){const eligible=pool.filter(i=>!excludeNames.has(i.name));if(!eligible.length)return pool[0];const total=eligible.reduce((s,i)=>s+i.weight,0);let r=Math.random()*total;for(const item of eligible){r-=item.weight;if(r<=0)return item;}return eligible[eligible.length-1];}
+const isGodFin=f=>f.name==='Gold'||f.name==='Ink';
+const isCrackle=f=>f.name.startsWith('Crackle');
+const isUlt=f=>f.rarity==='Ultimate';
+const isSR=f=>f.rarity==='SuperRare';
+const isRare_=f=>f.rarity==='Rare';
+function getTier(fin,fla){if(isGodFin(fin)&&isCrackle(fla))return 'god';if(isUlt(fin)&&isUlt(fla))return 'legendary';if((isUlt(fin)&&isSR(fla))||(isSR(fin)&&isUlt(fla)))return 'epic';if((isSR(fin)&&isSR(fla))||(isUlt(fin)&&isRare_(fla))||(isRare_(fin)&&isUlt(fla)))return 'rare';if((isSR(fin)&&isRare_(fla))||(isRare_(fin)&&isSR(fla)))return 'uncommon';return 'common';}
+function rarityClass(r){return r==='SuperRare'?'superrare':r.toLowerCase();}
+function rarityLabel(r){return r==='SuperRare'?'Super Rare':r;}
+function toggleExclusion(type,name){const set=type==='fin'?excludedFins:excludedFlas;if(set.has(name))set.delete(name);else set.add(name);renderChips();}
+function renderChips(){if(!isReady()){document.getElementById('finish-chips').innerHTML='<span class="pool-empty">Select mastery &amp; split count</span>';document.getElementById('flare-chips').innerHTML='<span class="pool-empty">Select mastery &amp; split count</span>';document.getElementById('pool-footnote').style.display='none';return;}const{fins,fls}=getAllItems(selMastery,selSplits);document.getElementById('finish-chips').innerHTML=fins.map(i=>{const e=excludedFins.has(i.name);return`<span class="chip ${rarityClass(i.rarity)}${e?' excluded':''}" onclick="toggleExclusion('fin','${i.name}')">${i.name}</span>`;}).join('');document.getElementById('flare-chips').innerHTML=fls.map(i=>{const e=excludedFlas.has(i.name);return`<span class="chip ${rarityClass(i.rarity)}${e?' excluded':''}" onclick="toggleExclusion('fla','${i.name}')">${i.name}</span>`;}).join('');document.getElementById('pool-footnote').style.display='block';}
+function vcSymbol(a,b){const before=RARITY_RANK[a.rarity]||0,after=RARITY_RANK[b.rarity]||0;if(after>before)return{sym:'&#9650;',cls:'vc-up'};if(after<before)return{sym:'&#9660;',cls:'vc-down'};return{sym:'=',cls:'vc-eq'};}
+function buildVcCell(h){if(!h.finRerolled&&!h.flaRerolled)return`<td style="color:var(--muted);font-size:11px">—</td>`;const parts=[];if(h.finRerolled){const{sym,cls}=vcSymbol(h.initialFin,h.fin);parts.push(`<div class="vc-item ${cls}"><span class="vc-sym">${sym}</span><span class="vc-lbl">Finish</span></div>`);}if(h.flaRerolled){const{sym,cls}=vcSymbol(h.initialFla,h.fla);parts.push(`<div class="vc-item ${cls}"><span class="vc-sym">${sym}</span><span class="vc-lbl">Flare</span></div>`);}return`<td><div style="display:flex;flex-direction:column;gap:2px">${parts.join('')}</div></td>`;}
+function setMastery(btn){selMastery=parseInt(btn.dataset.val);const{fins,fls}=getAllItems(selMastery,selSplits||0);const fn=new Set(fins.map(f=>f.name)),fl=new Set(fls.map(f=>f.name));excludedFins.forEach(n=>{if(!fn.has(n))excludedFins.delete(n);});excludedFlas.forEach(n=>{if(!fl.has(n))excludedFlas.delete(n);});render();}
+function setSplits(btn){selSplits=parseInt(btn.dataset.val);const{fins,fls}=getAllItems(selMastery||0,selSplits);const fn=new Set(fins.map(f=>f.name)),fl=new Set(fls.map(f=>f.name));excludedFins.forEach(n=>{if(!fn.has(n))excludedFins.delete(n);});excludedFlas.forEach(n=>{if(!fl.has(n))excludedFlas.delete(n);});render();}
+function render(){document.querySelectorAll('#mastery-group .opt-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.val)===selMastery));document.querySelectorAll('#splits-group .opt-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.val)===selSplits));renderChips();updateButtonStates();}
+function toggleWeights(){useRarityWeights=!useRarityWeights;const track=document.getElementById('weight-toggle'),lblE=document.getElementById('lbl-equal'),lblR=document.getElementById('lbl-rarity');if(useRarityWeights){track.classList.add('on');lblE.classList.remove('on');lblR.classList.add('on');}else{track.classList.remove('on');lblE.classList.add('on');lblR.classList.remove('on');}}
+function totalW(arr){return arr.reduce((s,i)=>s+i.weight,0)}
+function pW(arr,pred){const t=totalW(arr);return t?arr.filter(pred).reduce((s,i)=>s+i.weight,0)/t:0}
+function without(arr,item){return arr.filter(i=>i!==item)}
+function calcTierOdds(fins,fls,finPred,flPred,hasProt){const pFin=pW(fins,finPred),pFl=pW(fls,flPred),base=pFin*pFl;const initial=hasProt?Math.min(1,base+0.1*(1-base)):base;function avgEx(pool,exPred,tPred){const tot=totalW(pool);if(!tot)return 0;let s=0;pool.forEach(x=>{if(!exPred(x)){const r=without(pool,x);s+=(x.weight/tot)*pW(r,tPred);}});return s;}const freeFlare=pFin*(pFl+(1-pFl)*avgEx(fls,f=>!flPred(f),flPred));const freeFinish=pFl*(pFin+(1-pFin)*avgEx(fins,f=>!finPred(f),finPred));const tF=totalW(fins),tFl=totalW(fls);let pFO=0,pFlO=0,pB=0;fins.forEach(fi=>{const pFi=fi.weight/tF,fEi=without(fins,fi),tFi2=totalW(fEi);const pFi3=tFi2?fEi.filter(finPred).reduce((s,x)=>s+x.weight,0)/tFi2:0,hFi=finPred(fi);fls.forEach(fl=>{const pFv=fl.weight/tFl,fEl=without(fls,fl),tFl2=totalW(fEl);const pFl2=tFl2?fEl.filter(flPred).reduce((s,x)=>s+x.weight,0)/tFl2:0;fEl.forEach(fl2=>{const p2=fl2.weight/tFl2,h2=flPred(fl2);if(hFi&&h2)pFO+=pFi*pFv*p2;else if(!hFi&&h2)pFO+=pFi*pFv*p2*pFi3;});fEi.forEach(fi2=>{const p2=fi2.weight/tFi2,h2=finPred(fi2);if(h2&&flPred(fl))pFlO+=pFi*pFv*p2;else if(h2&&!flPred(fl))pFlO+=pFi*pFv*p2*pFl2;});fEl.forEach(fl2=>{const p2=fl2.weight/tFl2,h2=flPred(fl2),fE2=without(fEl,fl2),tFl3=totalW(fE2);const pFl3=tFl3?fE2.filter(flPred).reduce((s,x)=>s+x.weight,0)/tFl3:0;if(hFi&&h2)pB+=pFi*pFv*p2;else if(hFi&&!h2)pB+=pFi*pFv*p2*pFl3;else if(!hFi&&h2)pB+=pFi*pFv*p2*pFi3;else pB+=pFi*pFv*p2*pFi3*pFl3;});});});return{initial,freeFlare,freeFinish,paidFinOnly:pFO,paidFlOnly:pFlO,paidBoth:pB};}
+function calcPairOdds(fins,fls,pp,hasProt){const tF=totalW(fins),tFl=totalW(fls);const bi=fins.reduce((s,fi)=>s+fls.reduce((s2,fl)=>s2+(pp(fi,fl)?(fi.weight/tF)*(fl.weight/tFl):0),0),0);const initial=hasProt?Math.min(1,bi+0.1*(1-bi)):bi;let fF=0,fFn=0,pFO=0,pFlO=0,pB=0;fins.forEach(fi=>{const pFi=fi.weight/tF,fEi=without(fins,fi),tFi2=totalW(fEi);fls.forEach(fl=>{const pFv=fl.weight/tFl,fEl=without(fls,fl),tFl2=totalW(fEl);fF+=pFi*pFv*(pp(fi,fl)?1:tFl2?fEl.reduce((s,fl2)=>s+(pp(fi,fl2)?fl2.weight/tFl2:0),0):0);fFn+=pFi*pFv*(pp(fi,fl)?1:tFi2?fEi.reduce((s,fi2)=>s+(pp(fi2,fl)?fi2.weight/tFi2:0),0):0);fEl.forEach(fl2=>{const p2=fl2.weight/tFl2;if(pp(fi,fl2)){pFO+=pFi*pFv*p2;}else{const pH=tFi2?fEi.reduce((s,fi3)=>s+(pp(fi3,fl2)?fi3.weight/tFi2:0),0):0;pFO+=pFi*pFv*p2*pH;}});fEi.forEach(fi2=>{const p2=fi2.weight/tFi2;if(pp(fi2,fl)){pFlO+=pFi*pFv*p2;}else{const pH=tFl2?fEl.reduce((s,fl3)=>s+(pp(fi2,fl3)?fl3.weight/tFl2:0),0):0;pFlO+=pFi*pFv*p2*pH;}});fEl.forEach(fl2=>{const p2=fl2.weight/tFl2,fE2=without(fEl,fl2),tFl3=totalW(fE2);if(pp(fi,fl2)){pB+=pFi*pFv*p2;}else{const pH3f=tFi2?fEi.reduce((s,fi3)=>s+(pp(fi3,fl2)?fi3.weight/tFi2:0),0):0;const pH3l=tFl3?fE2.reduce((s,fl3)=>s+(pp(fi,fl3)?fl3.weight/tFl3:0),0):0;const pHB=tFi2&&tFl3?fEi.reduce((s,fi3)=>s+fE2.reduce((s2,fl3)=>s2+(pp(fi3,fl3)?(fi3.weight/tFi2)*(fl3.weight/tFl3):0),0),0):0;pB+=pFi*pFv*p2*Math.max(pH3f,pH3l,pHB);}});});});return{initial,freeFlare:fF,freeFinish:fFn,paidFinOnly:pFO,paidFlOnly:pFlO,paidBoth:pB};}
+function pct(v){return(Math.max(0,Math.min(v,1))*100).toFixed(2)+'%';}
+function calculate(){const{fins,fls}=getPool(selMastery,selSplits),hasProt=selSplits>=4;const pn=document.getElementById('prot-notice');if(hasProt){pn.classList.remove('hidden');pn.textContent='God Split protection active: 10% chance to guarantee a God Split on the initial split (4+ splits on this card).';}else pn.classList.add('hidden');document.getElementById('weight-mode-badge').textContent=useRarityWeights?'Rarity weights':'Equal weights';const god=calcTierOdds(fins,fls,isGodFin,isCrackle,hasProt);const legendaryRaw=calcTierOdds(fins,fls,isUlt,isUlt,false);const godBase=calcTierOdds(fins,fls,isGodFin,isCrackle,false);const legendary={initial:Math.max(0,legendaryRaw.initial-godBase.initial),freeFlare:Math.max(0,legendaryRaw.freeFlare-godBase.freeFlare),freeFinish:Math.max(0,legendaryRaw.freeFinish-godBase.freeFinish),paidFinOnly:Math.max(0,legendaryRaw.paidFinOnly-godBase.paidFinOnly),paidFlOnly:Math.max(0,legendaryRaw.paidFlOnly-godBase.paidFlOnly),paidBoth:Math.max(0,legendaryRaw.paidBoth-godBase.paidBoth)};const epic=calcPairOdds(fins,fls,(fi,fl)=>(isUlt(fi)&&isSR(fl))||(isSR(fi)&&isUlt(fl)),false);const rare=calcPairOdds(fins,fls,(fi,fl)=>(isSR(fi)&&isSR(fl))||(isUlt(fi)&&isRare_(fl))||(isRare_(fi)&&isUlt(fl)),false);const uncommon=calcPairOdds(fins,fls,(fi,fl)=>(isSR(fi)&&isRare_(fl))||(isRare_(fi)&&isSR(fl)),false);const common=calcPairOdds(fins,fls,(fi,fl)=>isRare_(fi)&&isRare_(fl),false);const ROWS=[['No re-rolls','initial',hasProt],['Free re-roll on Flare','freeFlare',false],['Free re-roll on Finish','freeFinish',false],['Paid: Finish only','paidFinOnly',false],['Paid: Flare only','paidFlOnly',false],['Paid: both re-rolls','paidBoth',false]];document.getElementById('results-tbody').innerHTML=ROWS.map(([label,key,badge])=>`<tr><td class="row-label">${label}${badge?'<span class="prot-badge">+10% prot</span>':''}</td><td class="val">${pct(god[key])}</td><td class="val">${pct(legendary[key])}</td><td class="val">${pct(epic[key])}</td><td class="val">${pct(rare[key])}</td><td class="val">${pct(uncommon[key])}</td><td class="val">${pct(common[key])}</td></tr>`).join('');document.getElementById('results').classList.remove('hidden');}
+function finSVG(c){return`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><polygon points="18,2 34,18 18,34 2,18" fill="none" stroke="${c}" stroke-width="2"/><polygon points="18,8 28,18 18,28 8,18" fill="${c}" opacity="0.3"/><polygon points="18,13 23,18 18,23 13,18" fill="${c}" opacity="0.7"/></svg>`;}
+function flaSVG(c){return`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><line x1="18" y1="2" x2="18" y2="34" stroke="${c}" stroke-width="1.5" opacity="0.5"/><line x1="2" y1="18" x2="34" y2="18" stroke="${c}" stroke-width="1.5" opacity="0.5"/><line x1="6" y1="6" x2="30" y2="30" stroke="${c}" stroke-width="1.5" opacity="0.5"/><line x1="30" y1="6" x2="6" y2="30" stroke="${c}" stroke-width="1.5" opacity="0.5"/><circle cx="18" cy="18" r="5" fill="${c}" opacity="0.8"/><circle cx="18" cy="18" r="9" fill="none" stroke="${c}" stroke-width="1" opacity="0.4"/></svg>`;}
+function updateCard(){if(!rs)return;const tier=getTier(rs.fin,rs.fla),meta=TIER_META[tier];document.getElementById('snap-card').className='snap-card '+meta.cardCls;document.getElementById('snap-card-art').style.background=meta.artColor+'22';document.getElementById('snap-card-art-inner').innerHTML=finSVG(meta.artColor)+flaSVG(meta.artColor);const badge=document.getElementById('snap-tier-badge');badge.textContent=meta.label;badge.className='split-tier-badge '+meta.cls;const fn=document.getElementById('snap-finish-name');fn.textContent=rs.fin.name;fn.className='snap-card-value'+(rs.finChanged?' changed':'');document.getElementById('snap-finish-rarity').innerHTML=`<span class="chip ${rarityClass(rs.fin.rarity)}">${rarityLabel(rs.fin.rarity)}</span>`;const fln=document.getElementById('snap-flare-name');fln.textContent=rs.fla.name;fln.className='snap-card-value'+(rs.flaChanged?' changed':'');document.getElementById('snap-flare-rarity').innerHTML=`<span class="chip ${rarityClass(rs.fla.rarity)}">${rarityLabel(rs.fla.rarity)}</span>`;}
+function renderRerollButtons(){const area=document.getElementById('reroll-area');if(rs.stage==='confirmed'){area.innerHTML=`<div class="rr-confirm-row"><button class="rbtn confirm" style="width:100%" disabled>Confirmed</button></div><div class="reroll-status">Split locked in. Roll again for a new card.</div>`;return;}if(rs.stage==='initial'){area.innerHTML=`<div class="rr-confirm-row"><button class="rbtn confirm" style="width:100%" onclick="confirmSplit()">Confirm</button></div><div class="rr-options-row"><div class="rr-option-wrap"><button class="rbtn free" style="width:100%" onclick="rerollFree('finish')">Re-roll Finish<br><span style="font-size:9px;opacity:.8">(Free)</span></button></div><div class="rr-divider"><span class="or-pill">OR</span></div><div class="rr-option-wrap"><button class="rbtn free" style="width:100%" onclick="rerollFree('flare')">Re-roll Flare<br><span style="font-size:9px;opacity:.8">(Free)</span></button></div></div><div class="reroll-status">Use your free re-roll, or confirm your result.</div>`;return;}if(rs.stage==='after_free'){const gs=(rs.paidFinUsed?100:0)+(rs.paidFlaUsed?100:0);const fB=!rs.paidFinUsed?`<button class="rbtn paid" style="width:100%" onclick="rerollPaid('finish')">Re-roll Finish<br><span style="font-size:9px;opacity:.8">(100 Gold)</span></button>`:`<button class="rbtn paid used" style="width:100%" disabled>Finish Re-rolled</button>`;const fU=!rs.paidFinUsed?`<span class="paid-uses">1 use remaining</span>`:`<span class="paid-uses used-up">0 uses remaining</span>`;const lB=!rs.paidFlaUsed?`<button class="rbtn paid" style="width:100%" onclick="rerollPaid('flare')">Re-roll Flare<br><span style="font-size:9px;opacity:.8">(100 Gold)</span></button>`:`<button class="rbtn paid used" style="width:100%" disabled>Flare Re-rolled</button>`;const lU=!rs.paidFlaUsed?`<span class="paid-uses">1 use remaining</span>`:`<span class="paid-uses used-up">0 uses remaining</span>`;area.innerHTML=`<div class="rr-confirm-row"><button class="rbtn confirm" style="width:100%" onclick="confirmSplit()">Confirm</button></div><div class="rr-options-row"><div class="rr-option-wrap">${fB}${fU}</div><div class="rr-divider"></div><div class="rr-option-wrap">${lB}${lU}</div></div><div class="reroll-status">${gs>0?gs+' Gold spent':''}</div>`;}}
+function rerollFree(slot){if(!rs||rs.stage!=='initial')return;if(slot==='finish'){rs.excludedFins.add(rs.fin.name);rs.fin=weightedPick(rs.pool.fins,rs.excludedFins);rs.finChanged=true;rs.flaChanged=false;rs.finRerolled=true;}else{rs.excludedFlas.add(rs.fla.name);rs.fla=weightedPick(rs.pool.fls,rs.excludedFlas);rs.flaChanged=true;rs.finChanged=false;rs.flaRerolled=true;}rs.freeUsed=slot;rs.stage='after_free';updateCard();renderRerollButtons();}
+function rerollPaid(slot){if(!rs||rs.stage!=='after_free')return;if(slot==='finish'&&!rs.paidFinUsed){rs.excludedFins.add(rs.fin.name);rs.fin=weightedPick(rs.pool.fins,rs.excludedFins);rs.finChanged=true;rs.flaChanged=false;rs.paidFinUsed=true;rs.finRerolled=true;}else if(slot==='flare'&&!rs.paidFlaUsed){rs.excludedFlas.add(rs.fla.name);rs.fla=weightedPick(rs.pool.fls,rs.excludedFlas);rs.flaChanged=true;rs.finChanged=false;rs.paidFlaUsed=true;rs.flaRerolled=true;}if(rs.paidFinUsed&&rs.paidFlaUsed){rs.stage='confirmed';addToHistory();}updateCard();renderRerollButtons();}
+function confirmSplit(){if(!rs||rs.stage==='confirmed')return;rs.stage='confirmed';rs.finChanged=false;rs.flaChanged=false;addToHistory();updateCard();renderRerollButtons();}
+function addToHistory(){rollCount++;const tier=getTier(rs.fin,rs.fla),meta=TIER_META[tier];history.unshift({n:rollCount,fin:rs.fin,fla:rs.fla,tier,meta,initialFin:rs.initialFin,initialFla:rs.initialFla,finRerolled:rs.finRerolled,flaRerolled:rs.flaRerolled});renderHistory();document.getElementById('history-section').classList.remove('hidden');}
+function rollSplit(){if(!isReady())return;const pool=getPool(selMastery,selSplits),fin=weightedPick(pool.fins,new Set()),fla=weightedPick(pool.fls,new Set());rs=initRollState(fin,fla,pool);document.getElementById('split-result').classList.remove('hidden');if(history.length>0)document.getElementById('history-section').classList.remove('hidden');updateCard();renderRerollButtons();}
+function renderHistory(){document.getElementById('history-tbody').innerHTML=history.map(h=>`<tr class="new-row"><td class="roll-num">${h.n}</td><td class="item-name">${h.fin.name}</td><td><span class="chip ${rarityClass(h.fin.rarity)}">${rarityLabel(h.fin.rarity)}</span></td><td class="item-name">${h.fla.name}</td><td><span class="chip ${rarityClass(h.fla.rarity)}">${rarityLabel(h.fla.rarity)}</span></td><td><span class="split-tier-badge ${h.meta.cls}" style="font-size:10px;padding:2px 6px">${h.meta.label}</span></td>${buildVcCell(h)}</tr>`).join('');}
+function clearHistory(){history=[];rollCount=0;document.getElementById('history-section').classList.add('hidden');}
+updateButtonStates();
+</script>
+</body>
+</html>
