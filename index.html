@@ -49,13 +49,24 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
 .results-table td.val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:#fff;text-align:center}
 .results-table tr:hover td{background:var(--surface2)}
 .sub{display:block;font-size:9px;font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none;margin-top:2px;line-height:1.3}
-.toggle-wrap{display:flex;align-items:center;gap:10px}
+.pool-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px}
+.toggle-wrap{display:flex;align-items:center;gap:8px}
 .toggle-label{font-size:12px;color:var(--muted);transition:color .2s}
 .toggle-label.on{color:#fff}
 .toggle-track{width:44px;height:24px;border-radius:12px;background:var(--surface3);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s,border-color .2s;flex-shrink:0}
 .toggle-track.on{background:var(--accent-bg);border-color:var(--accent-border)}
 .toggle-thumb{width:18px;height:18px;border-radius:50%;background:var(--muted);position:absolute;top:3px;left:3px;transition:transform .2s,background .2s}
 .toggle-track.on .toggle-thumb{transform:translateX(20px);background:#fff}
+.rarity-weights{display:flex;flex-direction:column;gap:4px;transition:opacity .2s}
+.rw-row{display:flex;align-items:center;gap:6px}
+.rw-label{font-size:11px;font-weight:600;letter-spacing:.5px;width:64px;flex-shrink:0}
+.rw-label.ultimate{color:#f0c040}
+.rw-label.superrare{color:#c084f5}
+.rw-label.rare{color:#6aaaf5}
+.rw-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:14px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.rw-btn:hover:not(:disabled){border-color:#5a5a9a;color:var(--text)}
+.rw-btn:disabled{opacity:0.3;cursor:not-allowed}
+.rw-val{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#fff;min-width:20px;text-align:center}
 .split-tier-badge{display:inline-block;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:5px;text-transform:uppercase;white-space:nowrap}
 .tier-god{background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.55);color:#FFD700}
 .tier-legendary{background:rgba(255,100,30,0.18);border:1px solid rgba(255,100,30,0.55);color:#ff8040}
@@ -122,8 +133,10 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
 </style>
 </head>
 <body>
+
 <h1>Split Re-roll Calculator</h1>
 <div class="subtitle">Marvel Snap &nbsp;·&nbsp; Infinity Split Odds</div>
+
 <div class="grid2" style="gap:10px;margin-bottom:12px">
   <div class="card" style="margin-bottom:0">
     <div class="section-label">Character Mastery</div>
@@ -147,13 +160,36 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
     </div>
   </div>
 </div>
+
 <div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <div class="section-label" style="margin-bottom:0">Active Pool</div>
-    <div class="toggle-wrap">
-      <span class="toggle-label" id="lbl-equal">Equal weights</span>
-      <div class="toggle-track on" id="weight-toggle" onclick="toggleWeights()"><div class="toggle-thumb"></div></div>
-      <span class="toggle-label on" id="lbl-rarity">Rarity weights</span>
+  <div class="pool-header">
+    <div>
+      <div class="section-label" style="margin-bottom:8px">Active Pool</div>
+      <div class="toggle-wrap">
+        <span class="toggle-label" id="lbl-equal">Equal</span>
+        <div class="toggle-track on" id="weight-toggle" onclick="toggleWeights()"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label on" id="lbl-rarity">Rarity weights</span>
+      </div>
+    </div>
+    <div class="rarity-weights" id="rarity-weight-controls">
+      <div class="rw-row">
+        <span class="rw-label ultimate">Ultimate</span>
+        <button class="rw-btn" id="ult-minus" onclick="adjustWeight('Ultimate',-1)">−</button>
+        <span class="rw-val" id="ult-val">4</span>
+        <button class="rw-btn" onclick="adjustWeight('Ultimate',1)">+</button>
+      </div>
+      <div class="rw-row">
+        <span class="rw-label superrare">Super Rare</span>
+        <button class="rw-btn" id="sr-minus" onclick="adjustWeight('SuperRare',-1)">−</button>
+        <span class="rw-val" id="sr-val">5</span>
+        <button class="rw-btn" onclick="adjustWeight('SuperRare',1)">+</button>
+      </div>
+      <div class="rw-row">
+        <span class="rw-label rare">Rare</span>
+        <button class="rw-btn" id="rare-minus" onclick="adjustWeight('Rare',-1)">−</button>
+        <span class="rw-val" id="rare-val">6</span>
+        <button class="rw-btn" onclick="adjustWeight('Rare',1)">+</button>
+      </div>
     </div>
   </div>
   <div class="pool-preview">
@@ -168,6 +204,7 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
   </div>
   <p class="pool-footnote" id="pool-footnote" style="display:none">* Click any Finish or Flare to remove it from the pool. Click again to add it back. Confirmed split combos are excluded from future rolls.</p>
 </div>
+
 <div id="results" class="card hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="results-title" style="margin-bottom:0">Split Outcome Probabilities</div>
@@ -192,8 +229,10 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
   </div>
   <p class="note">* God Split protection (10%) applies to the initial split only — not to free or paid re-rolls</p>
 </div>
+
 <div id="simulator-section" style="margin-top:4px;display:none">
-  <button class="btn-action btn-ready" id="roll-btn" onclick="handleSplitBtn()">Split</button>
+  <button class="btn-action btn-ready" onclick="handleSplitBtn()">Split</button>
+
   <div id="split-result" class="card hidden" style="margin-top:12px">
     <div class="results-title">Split Result</div>
     <div class="snap-card-outer">
@@ -214,6 +253,7 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
     </div>
     <div class="reroll-area" id="reroll-area"></div>
   </div>
+
   <div id="history-section" class="card hidden" style="margin-top:4px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="results-title" style="margin-bottom:0">Split History</div>
@@ -228,14 +268,18 @@ h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;l
     <p class="history-footnote">* Value Change = difference in final Finish or Flare rarity vs initial split</p>
   </div>
 </div>
+
 <script>
-const WEIGHT_RARITY={Ultimate:4,SuperRare:5,Rare:6};
+const RARITY_WEIGHT={Ultimate:4,SuperRare:5,Rare:6};
+const WEIGHT_MIN=1,WEIGHT_MAX=20;
 const RARITY_RANK={Ultimate:3,SuperRare:2,Rare:1};
 const TIER_META={god:{label:'God Split',cls:'tier-god',cardCls:'tier-god-card',artColor:'#b8960a'},legendary:{label:'Legendary',cls:'tier-legendary',cardCls:'tier-legendary-card',artColor:'#cc5010'},epic:{label:'Epic',cls:'tier-epic',cardCls:'tier-epic-card',artColor:'#7a20cc'},rare:{label:'Rare',cls:'tier-rare',cardCls:'tier-rare-card',artColor:'#1466aa'},uncommon:{label:'Uncommon',cls:'tier-uncommon',cardCls:'tier-uncommon-card',artColor:'#1a8a50'},common:{label:'Common',cls:'tier-common',cardCls:'tier-common-card',artColor:'#3a3a3a'}};
 const FINISHES_DEF=[{name:'Foil',rarity:'Rare',mastery:0,splits:0},{name:'Prism',rarity:'Rare',mastery:0,splits:0},{name:'Ink',rarity:'Ultimate',mastery:0,splits:4},{name:'Gold',rarity:'Ultimate',mastery:0,splits:4},{name:'Rays Pink',rarity:'Rare',mastery:10,splits:0},{name:'Rays White',rarity:'Rare',mastery:10,splits:0},{name:'Rays Red',rarity:'Rare',mastery:10,splits:0},{name:'Rays Blue',rarity:'Rare',mastery:10,splits:0},{name:'Rays Green',rarity:'Rare',mastery:10,splits:0},{name:'Rays Orange',rarity:'Rare',mastery:10,splits:0},{name:'Metallic Copper',rarity:'SuperRare',mastery:10,splits:0},{name:'Psychedelic',rarity:'Ultimate',mastery:10,splits:0},{name:'Refraction',rarity:'SuperRare',mastery:10,splits:0},{name:'Circuits',rarity:'Ultimate',mastery:20,splits:0},{name:'Metallic Foil',rarity:'SuperRare',mastery:20,splits:0},{name:'Cosmic',rarity:'Ultimate',mastery:20,splits:0},{name:'Metallic Steel',rarity:'Ultimate',mastery:20,splits:0},{name:'Gilded Prism',rarity:'Ultimate',mastery:20,splits:0},{name:'Metallic Gold',rarity:'SuperRare',mastery:20,splits:0},{name:'Fire',rarity:'SuperRare',mastery:30,splits:0},{name:'Galactic Storm',rarity:'SuperRare',mastery:30,splits:0},{name:'Prism Gold',rarity:'Ultimate',mastery:30,splits:0},{name:'Prism Black',rarity:'Ultimate',mastery:30,splits:0},{name:'Wakandan Glass',rarity:'Ultimate',mastery:30,splits:0}];
 const FLARES_DEF=[{name:'Glimmer Red',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer Purple',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer Blue',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer White',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer Green',rarity:'Rare',mastery:0,splits:0},{name:'Glimmer Gold',rarity:'SuperRare',mastery:0,splits:0},{name:'Glimmer Rainbow',rarity:'SuperRare',mastery:0,splits:0},{name:'Glimmer Black',rarity:'SuperRare',mastery:0,splits:0},{name:'Stardust Red',rarity:'Rare',mastery:0,splits:0},{name:'Stardust Purple',rarity:'Rare',mastery:0,splits:0},{name:'Stardust Blue',rarity:'Rare',mastery:0,splits:0},{name:'Stardust White',rarity:'Rare',mastery:0,splits:0},{name:'Stardust Green',rarity:'Rare',mastery:0,splits:0},{name:'Stardust Gold',rarity:'SuperRare',mastery:0,splits:0},{name:'Stardust Rainbow',rarity:'SuperRare',mastery:0,splits:0},{name:'Stardust Black',rarity:'SuperRare',mastery:0,splits:0},{name:'Tone Red',rarity:'Rare',mastery:0,splits:0},{name:'Tone Purple',rarity:'Rare',mastery:0,splits:0},{name:'Tone Blue',rarity:'Rare',mastery:0,splits:0},{name:'Tone White',rarity:'Rare',mastery:0,splits:0},{name:'Tone Green',rarity:'Rare',mastery:0,splits:0},{name:'Tone Gold',rarity:'SuperRare',mastery:0,splits:0},{name:'Tone Rainbow',rarity:'SuperRare',mastery:0,splits:0},{name:'Tone Black',rarity:'SuperRare',mastery:0,splits:0},{name:'Crackle Red',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Purple',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Blue',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle White',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Green',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Gold',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Rainbow',rarity:'Ultimate',mastery:0,splits:4},{name:'Crackle Black',rarity:'Ultimate',mastery:0,splits:4},{name:'Rainbow Confetti',rarity:'SuperRare',mastery:10,splits:0},{name:'Neon Trails',rarity:'SuperRare',mastery:10,splits:0},{name:'Cosmic',rarity:'SuperRare',mastery:15,splits:0},{name:'Galactic Storm',rarity:'SuperRare',mastery:30,splits:0},{name:'Wakandan Tech',rarity:'Ultimate',mastery:30,splits:0},{name:'Wakandan Gold',rarity:'Ultimate',mastery:30,splits:0},{name:'Embers Green',rarity:'SuperRare',mastery:30,splits:0},{name:'Embers Blue',rarity:'SuperRare',mastery:30,splits:0},{name:'Embers',rarity:'Ultimate',mastery:30,splits:0},{name:'Diamond Gold',rarity:'Ultimate',mastery:30,splits:0}];
+
 let selMastery=null,selSplits=null,useRarityWeights=true,rollCount=0,history=[];
 let rs=null,excludedFins=new Set(),excludedFlas=new Set(),usedCombos=new Set();
+
 function isReady(){return selMastery!==null&&selSplits!==null;}
 function comboKey(fin,fla){return fin.name+'|'+fla.name;}
 function isUsedCombo(fin,fla){return usedCombos.has(comboKey(fin,fla));}
@@ -245,25 +289,29 @@ const isUlt=f=>f.rarity==='Ultimate';
 const isSR=f=>f.rarity==='SuperRare';
 const isRare_=f=>f.rarity==='Rare';
 const godPred=(fi,fl)=>isGodFin(fi)&&isCrackle(fl);
+
+function adjustWeight(rarity,delta){const next=Math.max(WEIGHT_MIN,Math.min(WEIGHT_MAX,RARITY_WEIGHT[rarity]+delta));if(next===RARITY_WEIGHT[rarity])return;RARITY_WEIGHT[rarity]=next;updateWeightUI();if(isReady())calculate();}
+function updateWeightUI(){document.getElementById('ult-val').textContent=RARITY_WEIGHT.Ultimate;document.getElementById('sr-val').textContent=RARITY_WEIGHT.SuperRare;document.getElementById('rare-val').textContent=RARITY_WEIGHT.Rare;document.getElementById('ult-minus').disabled=RARITY_WEIGHT.Ultimate<=WEIGHT_MIN;document.getElementById('sr-minus').disabled=RARITY_WEIGHT.SuperRare<=WEIGHT_MIN;document.getElementById('rare-minus').disabled=RARITY_WEIGHT.Rare<=WEIGHT_MIN;}
+
 function render(){document.querySelectorAll('#mastery-group .opt-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.val)===selMastery));document.querySelectorAll('#splits-group .opt-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.val)===selSplits));renderChips();if(isReady()){document.getElementById('results').classList.remove('hidden');document.getElementById('simulator-section').style.display='block';calculate();}else{document.getElementById('results').classList.add('hidden');document.getElementById('simulator-section').style.display='none';}}
 function setMastery(btn){selMastery=parseInt(btn.dataset.val);const{fins,fls}=getAllItems(selMastery,selSplits||0);const fn=new Set(fins.map(f=>f.name)),fl=new Set(fls.map(f=>f.name));excludedFins.forEach(n=>{if(!fn.has(n))excludedFins.delete(n);});excludedFlas.forEach(n=>{if(!fl.has(n))excludedFlas.delete(n);});render();}
 function setSplits(btn){selSplits=parseInt(btn.dataset.val);const{fins,fls}=getAllItems(selMastery||0,selSplits);const fn=new Set(fins.map(f=>f.name)),fl=new Set(fls.map(f=>f.name));excludedFins.forEach(n=>{if(!fn.has(n))excludedFins.delete(n);});excludedFlas.forEach(n=>{if(!fl.has(n))excludedFlas.delete(n);});render();}
-function toggleWeights(){useRarityWeights=!useRarityWeights;const track=document.getElementById('weight-toggle'),lblE=document.getElementById('lbl-equal'),lblR=document.getElementById('lbl-rarity');if(useRarityWeights){track.classList.add('on');lblE.classList.remove('on');lblR.classList.add('on');}else{track.classList.remove('on');lblE.classList.add('on');lblR.classList.remove('on');}if(isReady())calculate();}
+function toggleWeights(){useRarityWeights=!useRarityWeights;const track=document.getElementById('weight-toggle'),lblE=document.getElementById('lbl-equal'),lblR=document.getElementById('lbl-rarity'),controls=document.getElementById('rarity-weight-controls');if(useRarityWeights){track.classList.add('on');lblE.classList.remove('on');lblR.classList.add('on');controls.style.opacity='1';controls.style.pointerEvents='auto';}else{track.classList.remove('on');lblE.classList.add('on');lblR.classList.remove('on');controls.style.opacity='0.3';controls.style.pointerEvents='none';}if(isReady())calculate();}
 function toggleExclusion(type,name){const set=type==='fin'?excludedFins:excludedFlas;if(set.has(name))set.delete(name);else set.add(name);renderChips();if(isReady())calculate();}
-function getWeight(item){return useRarityWeights?WEIGHT_RARITY[item.rarity]:1;}
+function getWeight(item){return useRarityWeights?RARITY_WEIGHT[item.rarity]:1;}
 function getPool(mastery,splits){return{fins:FINISHES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits&&!excludedFins.has(f.name)).map(f=>({...f,weight:getWeight(f)})),fls:FLARES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits&&!excludedFlas.has(f.name)).map(f=>({...f,weight:getWeight(f)}))}}
 function getAllItems(mastery,splits){return{fins:FINISHES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits),fls:FLARES_DEF.filter(f=>f.mastery<=mastery&&f.splits<=splits)};}
 function renderChips(){if(!isReady()){document.getElementById('finish-chips').innerHTML='<span class="pool-empty">Select mastery &amp; split count</span>';document.getElementById('flare-chips').innerHTML='<span class="pool-empty">Select mastery &amp; split count</span>';document.getElementById('pool-footnote').style.display='none';return;}const{fins,fls}=getAllItems(selMastery,selSplits);document.getElementById('finish-chips').innerHTML=fins.map(i=>{const e=excludedFins.has(i.name);return`<span class="chip ${rarityClass(i.rarity)}${e?' excluded':''}" onclick="toggleExclusion('fin','${i.name}')" title="${e?'Click to add back':'Click to exclude'}">${i.name}</span>`;}).join('');document.getElementById('flare-chips').innerHTML=fls.map(i=>{const e=excludedFlas.has(i.name);return`<span class="chip ${rarityClass(i.rarity)}${e?' excluded':''}" onclick="toggleExclusion('fla','${i.name}')" title="${e?'Click to add back':'Click to exclude'}">${i.name}</span>`;}).join('');document.getElementById('pool-footnote').style.display='block';}
 function rarityClass(r){return r==='SuperRare'?'superrare':r.toLowerCase();}
 function rarityLabel(r){return r==='SuperRare'?'Super Rare':r;}
-function weightedPickPair(fins,flas,hasProt){const godFins=fins.filter(f=>isGodFin(f)),crackleFlas=flas.filter(f=>isCrackle(f));const availableGodCombos=[];if(hasProt)godFins.forEach(fi=>crackleFlas.forEach(fl=>{if(!isUsedCombo(fi,fl))availableGodCombos.push({fi,fl});}));if(hasProt&&availableGodCombos.length>0&&Math.random()<0.10){const pick=availableGodCombos[Math.floor(Math.random()*availableGodCombos.length)];return{fin:pick.fi,fla:pick.fl};}const pairs=[];let totalW=0;fins.forEach(fi=>flas.forEach(fl=>{if(!isUsedCombo(fi,fl)){const w=fi.weight*fl.weight;pairs.push({fi,fl,w});totalW+=w;}}));if(!pairs.length)return{fin:fins[0]||{name:'—',rarity:'Rare'},fla:flas[0]||{name:'—',rarity:'Rare'}};let r=Math.random()*totalW;for(const p of pairs){r-=p.w;if(r<=0)return{fin:p.fi,fla:p.fl};}const last=pairs[pairs.length-1];return{fin:last.fi,fla:last.fl};}
+function weightedPickPair(fins,flas,hasProt){const godFins=fins.filter(f=>isGodFin(f)),crackleFlas=flas.filter(f=>isCrackle(f));const avail=[];if(hasProt)godFins.forEach(fi=>crackleFlas.forEach(fl=>{if(!isUsedCombo(fi,fl))avail.push({fi,fl});}));if(hasProt&&avail.length>0&&Math.random()<0.10){const p=avail[Math.floor(Math.random()*avail.length)];return{fin:p.fi,fla:p.fl};}const pairs=[];let tw=0;fins.forEach(fi=>flas.forEach(fl=>{if(!isUsedCombo(fi,fl)){const w=fi.weight*fl.weight;pairs.push({fi,fl,w});tw+=w;}}));if(!pairs.length)return{fin:fins[0]||{name:'—',rarity:'Rare'},fla:flas[0]||{name:'—',rarity:'Rare'}};let r=Math.random()*tw;for(const p of pairs){r-=p.w;if(r<=0)return{fin:p.fi,fla:p.fl};}const last=pairs[pairs.length-1];return{fin:last.fi,fla:last.fl};}
 function weightedPick(pool,excludeNames){const eligible=pool.filter(i=>!excludeNames.has(i.name));if(!eligible.length)return pool[0];const total=eligible.reduce((s,i)=>s+i.weight,0);let r=Math.random()*total;for(const item of eligible){r-=item.weight;if(r<=0)return item;}return eligible[eligible.length-1];}
 function getTier(fin,fla){if(isGodFin(fin)&&isCrackle(fla))return 'god';if(isUlt(fin)&&isUlt(fla))return 'legendary';if((isUlt(fin)&&isSR(fla))||(isSR(fin)&&isUlt(fla)))return 'epic';if((isSR(fin)&&isSR(fla))||(isUlt(fin)&&isRare_(fla))||(isRare_(fin)&&isUlt(fla)))return 'rare';if((isSR(fin)&&isRare_(fla))||(isRare_(fin)&&isSR(fla)))return 'uncommon';return 'common';}
 function totalPairW(fins,fls){let t=0;fins.forEach(fi=>fls.forEach(fl=>{if(!isUsedCombo(fi,fl))t+=fi.weight*fl.weight;}));return t;}
 function pPair(fins,fls,pred){const tot=totalPairW(fins,fls);if(!tot)return 0;let s=0;fins.forEach(fi=>fls.forEach(fl=>{if(!isUsedCombo(fi,fl)&&pred(fi,fl))s+=fi.weight*fl.weight;}));return s/tot;}
 function calcOddsFromPairs(fins,fls,pred,hasProt){const base=pPair(fins,fls,pred);const isGodP=pred===godPred;let initial;if(hasProt){initial=isGodP?Math.min(1,0.1+0.9*base):0.9*base;}else{initial=base;}let freeFlare=0;{const tot=totalPairW(fins,fls);if(tot>0){fins.forEach(fi=>{const vFls=fls.filter(fl=>!isUsedCombo(fi,fl));const tFi=vFls.reduce((s,fl)=>s+fi.weight*fl.weight,0);if(!tFi)return;const pFi=tFi/tot;vFls.forEach(fl=>{const pFl=fl.weight/vFls.reduce((s,x)=>s+x.weight,0);if(pred(fi,fl)){freeFlare+=pFi*pFl;}else{const rem=vFls.filter(x=>x!==fl);const remW=rem.reduce((s,x)=>s+x.weight,0);freeFlare+=pFi*pFl*(remW?rem.filter(x=>pred(fi,x)).reduce((s,x)=>s+x.weight,0)/remW:0);}});});}}let freeFinish=0;{const tot=totalPairW(fins,fls);if(tot>0){fls.forEach(fl=>{const vFins=fins.filter(fi=>!isUsedCombo(fi,fl));const tFl=vFins.reduce((s,fi)=>s+fi.weight*fl.weight,0);if(!tFl)return;const pFl=tFl/tot;vFins.forEach(fi=>{const pFi=fi.weight/vFins.reduce((s,x)=>s+x.weight,0);if(pred(fi,fl)){freeFinish+=pFl*pFi;}else{const rem=vFins.filter(x=>x!==fi);const remW=rem.reduce((s,x)=>s+x.weight,0);freeFinish+=pFl*pFi*(remW?rem.filter(x=>pred(x,fl)).reduce((s,x)=>s+x.weight,0)/remW:0);}});});}}const paidFinOnly=freeFlare,paidFlOnly=freeFinish;const paidBoth=Math.min(1,Math.max(paidFinOnly,paidFlOnly,Math.sqrt(paidFinOnly*paidFlOnly)*1.1));return{initial,freeFlare,freeFinish,paidFinOnly,paidFlOnly,paidBoth};}
 function pct(v){return(Math.max(0,Math.min(v,1))*100).toFixed(2)+'%';}
-function calculate(){if(!isReady())return;const{fins,fls}=getPool(selMastery,selSplits),hasProt=selSplits>=4;const pn=document.getElementById('prot-notice');if(hasProt){pn.classList.remove('hidden');pn.textContent='God Split protection active: 10% chance to guarantee a God Split on each initial split (4+ splits on this card).';}else pn.classList.add('hidden');document.getElementById('weight-mode-badge').textContent=useRarityWeights?'Rarity weights':'Equal weights';const god=calcOddsFromPairs(fins,fls,godPred,hasProt);const legAll=calcOddsFromPairs(fins,fls,(fi,fl)=>isUlt(fi)&&isUlt(fl),false);const godBase=calcOddsFromPairs(fins,fls,godPred,false);const legendary={initial:Math.max(0,legAll.initial-godBase.initial),freeFlare:Math.max(0,legAll.freeFlare-godBase.freeFlare),freeFinish:Math.max(0,legAll.freeFinish-godBase.freeFinish),paidFinOnly:Math.max(0,legAll.paidFinOnly-godBase.paidFinOnly),paidFlOnly:Math.max(0,legAll.paidFlOnly-godBase.paidFlOnly),paidBoth:Math.max(0,legAll.paidBoth-godBase.paidBoth)};const epic=calcOddsFromPairs(fins,fls,(fi,fl)=>(isUlt(fi)&&isSR(fl))||(isSR(fi)&&isUlt(fl)),false);const rare=calcOddsFromPairs(fins,fls,(fi,fl)=>(isSR(fi)&&isSR(fl))||(isUlt(fi)&&isRare_(fl))||(isRare_(fi)&&isUlt(fl)),false);const uncommon=calcOddsFromPairs(fins,fls,(fi,fl)=>(isSR(fi)&&isRare_(fl))||(isRare_(fi)&&isSR(fl)),false);const common=calcOddsFromPairs(fins,fls,(fi,fl)=>isRare_(fi)&&isRare_(fl),false);const ROWS=[['No re-rolls','initial',hasProt],['Free re-roll on Flare','freeFlare',false],['Free re-roll on Finish','freeFinish',false],['Paid: Finish only','paidFinOnly',false],['Paid: Flare only','paidFlOnly',false],['Paid: both re-rolls','paidBoth',false]];document.getElementById('results-tbody').innerHTML=ROWS.map(([label,key,badge])=>`<tr><td class="row-label">${label}${badge?'<span class="prot-badge">+10% prot</span>':''}</td><td class="val">${pct(god[key])}</td><td class="val">${pct(legendary[key])}</td><td class="val">${pct(epic[key])}</td><td class="val">${pct(rare[key])}</td><td class="val">${pct(uncommon[key])}</td><td class="val">${pct(common[key])}</td></tr>`).join('');}
+function calculate(){if(!isReady())return;const{fins,fls}=getPool(selMastery,selSplits),hasProt=selSplits>=4;const pn=document.getElementById('prot-notice');if(hasProt){pn.classList.remove('hidden');pn.textContent='God Split protection active: 10% chance to guarantee a God Split on each initial split (4+ splits on this card).';}else pn.classList.add('hidden');const badge=useRarityWeights?`Ult ${RARITY_WEIGHT.Ultimate} · SR ${RARITY_WEIGHT.SuperRare} · Rare ${RARITY_WEIGHT.Rare}`:'Equal weights';document.getElementById('weight-mode-badge').textContent=badge;const god=calcOddsFromPairs(fins,fls,godPred,hasProt);const legAll=calcOddsFromPairs(fins,fls,(fi,fl)=>isUlt(fi)&&isUlt(fl),false);const godBase=calcOddsFromPairs(fins,fls,godPred,false);const legendary={initial:Math.max(0,legAll.initial-godBase.initial),freeFlare:Math.max(0,legAll.freeFlare-godBase.freeFlare),freeFinish:Math.max(0,legAll.freeFinish-godBase.freeFinish),paidFinOnly:Math.max(0,legAll.paidFinOnly-godBase.paidFinOnly),paidFlOnly:Math.max(0,legAll.paidFlOnly-godBase.paidFlOnly),paidBoth:Math.max(0,legAll.paidBoth-godBase.paidBoth)};const epic=calcOddsFromPairs(fins,fls,(fi,fl)=>(isUlt(fi)&&isSR(fl))||(isSR(fi)&&isUlt(fl)),false);const rare=calcOddsFromPairs(fins,fls,(fi,fl)=>(isSR(fi)&&isSR(fl))||(isUlt(fi)&&isRare_(fl))||(isRare_(fi)&&isUlt(fl)),false);const uncommon=calcOddsFromPairs(fins,fls,(fi,fl)=>(isSR(fi)&&isRare_(fl))||(isRare_(fi)&&isSR(fl)),false);const common=calcOddsFromPairs(fins,fls,(fi,fl)=>isRare_(fi)&&isRare_(fl),false);const ROWS=[['No re-rolls','initial',hasProt],['Free re-roll on Flare','freeFlare',false],['Free re-roll on Finish','freeFinish',false],['Paid: Finish only','paidFinOnly',false],['Paid: Flare only','paidFlOnly',false],['Paid: both re-rolls','paidBoth',false]];document.getElementById('results-tbody').innerHTML=ROWS.map(([label,key,badge])=>`<tr><td class="row-label">${label}${badge?'<span class="prot-badge">+10% prot</span>':''}</td><td class="val">${pct(god[key])}</td><td class="val">${pct(legendary[key])}</td><td class="val">${pct(epic[key])}</td><td class="val">${pct(rare[key])}</td><td class="val">${pct(uncommon[key])}</td><td class="val">${pct(common[key])}</td></tr>`).join('');}
 function finSVG(c){return`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><polygon points="18,2 34,18 18,34 2,18" fill="none" stroke="${c}" stroke-width="2"/><polygon points="18,8 28,18 18,28 8,18" fill="${c}" opacity="0.3"/><polygon points="18,13 23,18 18,23 13,18" fill="${c}" opacity="0.7"/></svg>`;}
 function flaSVG(c){return`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><line x1="18" y1="2" x2="18" y2="34" stroke="${c}" stroke-width="1.5" opacity="0.5"/><line x1="2" y1="18" x2="34" y2="18" stroke="${c}" stroke-width="1.5" opacity="0.5"/><line x1="6" y1="6" x2="30" y2="30" stroke="${c}" stroke-width="1.5" opacity="0.5"/><line x1="30" y1="6" x2="6" y2="30" stroke="${c}" stroke-width="1.5" opacity="0.5"/><circle cx="18" cy="18" r="5" fill="${c}" opacity="0.8"/><circle cx="18" cy="18" r="9" fill="none" stroke="${c}" stroke-width="1" opacity="0.4"/></svg>`;}
 function updateCard(){if(!rs)return;const tier=getTier(rs.fin,rs.fla),meta=TIER_META[tier];document.getElementById('snap-card').className='snap-card '+meta.cardCls;document.getElementById('snap-card-art').style.background=meta.artColor+'22';document.getElementById('snap-card-art-inner').innerHTML=finSVG(meta.artColor)+flaSVG(meta.artColor);const badge=document.getElementById('snap-tier-badge');badge.textContent=meta.label;badge.className='split-tier-badge '+meta.cls;const fn=document.getElementById('snap-finish-name');fn.textContent=rs.fin.name;fn.className='snap-card-value'+(rs.finChanged?' changed':'');document.getElementById('snap-finish-rarity').innerHTML=`<span class="chip ${rarityClass(rs.fin.rarity)}">${rarityLabel(rs.fin.rarity)}</span>`;const fln=document.getElementById('snap-flare-name');fln.textContent=rs.fla.name;fln.className='snap-card-value'+(rs.flaChanged?' changed':'');document.getElementById('snap-flare-rarity').innerHTML=`<span class="chip ${rarityClass(rs.fla.rarity)}">${rarityLabel(rs.fla.rarity)}</span>`;}
@@ -279,6 +327,8 @@ function addToHistory(){rollCount++;const tier=getTier(rs.fin,rs.fla),meta=TIER_
 function rollSplit(){if(!isReady())return;const hasProt=selSplits>=4;const{fins,fls}=getPool(selMastery,selSplits);const{fin,fla}=weightedPickPair(fins,fls,hasProt);rs=initRollState(fin,fla,{fins,fls});document.getElementById('split-result').classList.remove('hidden');if(history.length>0)document.getElementById('history-section').classList.remove('hidden');updateCard();renderRerollButtons();}
 function renderHistory(){document.getElementById('history-tbody').innerHTML=history.map(h=>`<tr class="new-row"><td class="roll-num">${h.n}</td><td class="item-name">${h.fin.name}</td><td><span class="chip ${rarityClass(h.fin.rarity)}">${rarityLabel(h.fin.rarity)}</span></td><td class="item-name">${h.fla.name}</td><td><span class="chip ${rarityClass(h.fla.rarity)}">${rarityLabel(h.fla.rarity)}</span></td><td><span class="split-tier-badge ${h.meta.cls}" style="font-size:10px;padding:2px 6px">${h.meta.label}</span></td>${buildVcCell(h)}</tr>`).join('');}
 function resetSplitPool(){history=[];rollCount=0;usedCombos.clear();rs=null;document.getElementById('history-section').classList.add('hidden');document.getElementById('split-result').classList.add('hidden');renderChips();if(isReady())calculate();}
+
+updateWeightUI();
 render();
 </script>
 </body>
